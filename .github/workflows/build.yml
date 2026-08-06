@@ -1,0 +1,62 @@
+name: Build autoxyq
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup WDK
+        uses: microsoft/setup-wdk@v1
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64
+
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release
+
+      - name: Run Unit Tests
+        run: |
+          cd build
+          ctest -C Release --output-on-failure
+
+      - name: Package Artifacts
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts/driver
+          New-Item -ItemType Directory -Force -Path artifacts/lib
+          Copy-Item build/driver/Release/autoxyq-drv.dll artifacts/driver/ -ErrorAction SilentlyContinue
+          Copy-Item build/driver/Release/autoxyq-drv.pdb artifacts/driver/ -ErrorAction SilentlyContinue
+          Copy-Item driver/autoxyq-drv.inx artifacts/driver/
+          Copy-Item scripts/install-driver.ps1 artifacts/driver/
+          Copy-Item scripts/uninstall-driver.ps1 artifacts/driver/
+          Copy-Item build/lib/Release/autoxyq.dll artifacts/lib/ -ErrorAction SilentlyContinue
+          Copy-Item build/lib/Release/autoxyq.lib artifacts/lib/ -ErrorAction SilentlyContinue
+          Copy-Item lib/autoxyq.h artifacts/lib/
+          Copy-Item lib/autoxyq-error.h artifacts/lib/
+          Copy-Item build/cli/Release/autoxyq-cli.exe artifacts/ -ErrorAction SilentlyContinue
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: autoxyq-build
+          path: artifacts/
+          retention-days: 7
