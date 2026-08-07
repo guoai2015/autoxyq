@@ -8,9 +8,14 @@ if(MSVC)
     add_compile_options(/W4 /WX /wd4100 /wd4201 /wd4214)
 endif()
 
+option(BUILD_DRIVER "Build UMDF driver (requires WDK)" OFF)
+
 enable_testing()
 
-add_subdirectory(driver)
 add_subdirectory(lib)
 add_subdirectory(cli)
 add_subdirectory(tests)
+
+if(BUILD_DRIVER)
+    add_subdirectory(driver)
+endif()
