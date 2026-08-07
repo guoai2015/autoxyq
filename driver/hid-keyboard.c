@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdint.h>
 #include "hid-report-desc.h"
+#include "ioctl-defs.h"
 
 // 键盘状态跟踪
 typedef struct {
