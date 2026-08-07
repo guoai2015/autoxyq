@@ -13,4 +13,7 @@ endif()
 add_subdirectory(driver)
 add_subdirectory(lib)
 add_subdirectory(cli)
-# add_subdirectory(tests)
+
+# 单元测试
+enable_testing()
+add_subdirectory(tests)
