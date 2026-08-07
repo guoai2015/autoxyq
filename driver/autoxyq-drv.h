@@ -6,9 +6,8 @@
 
 // 设备上下文 — 挂载在 WDFDEVICE 上
 typedef struct _DEVICE_CONTEXT {
-    // vhidmini 代理设备的接口引用 (后续任务填充)
-    // 当前为骨架, 仅保留设备状态
-    BOOLEAN IsPoweredOn;  // TRUE = 可接收 IOCTL, FALSE = 拒绝
+    BOOLEAN IsPoweredOn;
+    HANDLE  VhidHandle;   // vhidmini 设备句柄 (用于提交 HID Report)
 } DEVICE_CONTEXT, *PDEVICE_CONTEXT;
 
 // 获取设备上下文宏
