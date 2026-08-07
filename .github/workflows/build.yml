@@ -18,23 +18,15 @@ jobs:
       - name: Install WDK
         shell: pwsh
         run: |
-          Write-Host "Downloading Windows Driver Kit..."
-          $wdkUrl = "https://go.microsoft.com/fwlink/?linkid=2272693"
-          $wdkInstaller = "$env:TEMP\wdksetup.exe"
-          curl.exe -L -o $wdkInstaller $wdkUrl --retry 3 --retry-delay 5
-          if (-not (Test-Path $wdkInstaller)) {
-            Write-Error "WDK download failed: file not found"
-            exit 1
+          Write-Host "Installing WDK via Chocolatey..."
+          choco install windowsdriverkit --yes --limit-output --no-progress --timeout 600
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Chocolatey failed, trying VS Installer component..."
+            $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
+            $vsPath = "${env:ProgramFiles}\Microsoft Visual Studio\2022\Enterprise"
+            & $vsInstaller modify --installPath $vsPath --add Microsoft.VisualStudio.Component.Windows11WDK --quiet --norestart --wait
           }
-          $size = (Get-Item $wdkInstaller).Length
-          Write-Host "Downloaded WDK installer: $size bytes"
-          if ($size -lt 1048576) {
-            Write-Error "WDK download failed: file too small ($size bytes)"
-            exit 1
-          }
-          Write-Host "Installing WDK (silent, may take several minutes)..."
-          Start-Process -FilePath $wdkInstaller -ArgumentList "/quiet", "/norestart" -Wait -NoNewWindow
-          Write-Host "WDK installation complete"
+          Write-Host "WDK installation step complete"
 
       - name: Configure CMake
         run: |
