@@ -10,7 +10,7 @@ if(MSVC)
 endif()
 
 # 子目录将在后续任务中逐步启用
-# add_subdirectory(driver)
+add_subdirectory(driver)
 # add_subdirectory(lib)
 # add_subdirectory(cli)
 # add_subdirectory(tests)
