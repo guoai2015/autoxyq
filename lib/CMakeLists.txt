@@ -18,6 +18,7 @@ target_compile_definitions(autoxyq PRIVATE
 
 target_include_directories(autoxyq PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/driver
 )
 
 target_link_libraries(autoxyq
@@ -36,4 +37,5 @@ target_compile_definitions(autoxyq-static PRIVATE
 
 target_include_directories(autoxyq-static PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/driver
 )

@@ -83,8 +83,8 @@ int ioctl_send_keyboard(HANDLE hDevice, const keyboard_report_t* report) {
     DWORD bytesReturned = 0;
     BOOL ok = DeviceIoControl(
         hDevice,
-        IOCTL_KEYBOARD_REPORT,
-        (LPVOID)report, sizeof(keyboard_report_t),
+        (DWORD)IOCTL_KEYBOARD_REPORT,
+        (LPVOID)report, (DWORD)sizeof(keyboard_report_t),
         NULL, 0,
         &bytesReturned,
         NULL);
@@ -104,8 +104,8 @@ int ioctl_send_mouse(HANDLE hDevice, const mouse_report_t* report) {
     DWORD bytesReturned = 0;
     BOOL ok = DeviceIoControl(
         hDevice,
-        IOCTL_MOUSE_REPORT,
-        (LPVOID)report, sizeof(mouse_report_t),
+        (DWORD)IOCTL_MOUSE_REPORT,
+        (LPVOID)report, (DWORD)sizeof(mouse_report_t),
         NULL, 0,
         &bytesReturned,
         NULL);
@@ -122,7 +122,7 @@ int ioctl_reset_devices(HANDLE hDevice) {
     DWORD bytesReturned = 0;
     BOOL ok = DeviceIoControl(
         hDevice,
-        IOCTL_RESET_DEVICES,
+        (DWORD)IOCTL_RESET_DEVICES,
         NULL, 0,
         NULL, 0,
         &bytesReturned,

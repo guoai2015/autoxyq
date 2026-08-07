@@ -40,7 +40,6 @@ static double speed_profile(double t, double accel_ratio, double decel_ratio) {
     } else if (t > 1.0 - decel_ratio) {
         // 减速段: ease-out
         double p = (t - (1.0 - decel_ratio)) / decel_ratio;
-        double decel_dist = decel_ratio * (1.0 - 0.5 * 0.5) / (accel_ratio + (1.0 - accel_ratio - decel_ratio) + decel_ratio * 0.5);
         // Fitts' Law: 越接近终点越慢
         double fitts_factor = 1.0 - (1.0 - p) * (1.0 - p) * 0.3;
         double raw = (1.0 - (1.0 - p) * (1.0 - p)) * fitts_factor;
