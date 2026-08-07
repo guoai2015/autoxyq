@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "action-queue.h"
+#include "autoxyq.h"
 
 // 环形队列
 static action_item_t* g_QueueBuffer = NULL;
