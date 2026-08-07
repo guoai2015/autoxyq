@@ -15,7 +15,7 @@ PnpLockdown = 1
 
 [SourceDisksFiles]
 autoxyq-drv.dll = 1
-WdfCoInstaller01011.dll = 1
+WdfCoInstaller01015.dll = 1
 
 [DestinationDirs]
 CopyFunctionDriver = 12          ; %windir%\system32\drivers\umdf
@@ -33,7 +33,7 @@ CopyFiles = CopyFunctionDriver, CopyCoInstaller
 
 [autoxyq_install.NT.Services]
 AddService = WUDFRd, 0x000001fa, WUDFRd_ServiceInstall
-AddService = autoxyq-drv,, AutoxyqDrv_ServiceInstall
+AddService = autoxyq-drv, 0x000001fa, AutoxyqDrv_ServiceInstall
 
 [autoxyq_install.NT.Wdf]
 UmdfService = autoxyq-drv, AutoxyqDrv_UmdfService
@@ -44,7 +44,7 @@ UmdfServiceOrder = autoxyq-drv
 autoxyq-drv.dll
 
 [CopyCoInstaller]
-WdfCoInstaller01011.dll
+WdfCoInstaller01015.dll
 
 ; ===== 服务配置 =====
 [WUDFRd_ServiceInstall]
