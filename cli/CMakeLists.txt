@@ -4,6 +4,7 @@ add_executable(autoxyq-cli
 
 target_link_libraries(autoxyq-cli
     autoxyq-static
+    setupapi.lib
 )
 
 target_include_directories(autoxyq-cli PRIVATE
