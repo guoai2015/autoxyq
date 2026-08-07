@@ -1,0 +1,70 @@
+; autoxyq-drv.inx - UMDF Virtual HID Driver Installation File
+; 基于 vhidmini 示例模板
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = HIDClass
+ClassGuid   = {745a17a0-74d3-11d0-b6fe-00a0c90f57da}
+Provider    = %ManufacturerName%
+CatalogFile = autoxyq-drv.cat
+DriverVer   = 08/06/2026,1.0.0.0
+PnpLockdown = 1
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[SourceDisksFiles]
+autoxyq-drv.dll = 1
+WdfCoInstaller01011.dll = 1
+
+[DestinationDirs]
+CopyFunctionDriver = 12          ; %windir%\system32\drivers\umdf
+CopyCoInstaller    = 11          ; %windir%\system32
+
+[Manufacturer]
+%ManufacturerName% = Standard,NTamd64
+
+[Standard.NTamd64]
+%DeviceName% = autoxyq_install, ACPI\AUTOXYQ
+
+; ===== 安装节 =====
+[autoxyq_install.NT]
+CopyFiles = CopyFunctionDriver, CopyCoInstaller
+
+[autoxyq_install.NT.Services]
+AddService = WUDFRd, 0x000001fa, WUDFRd_ServiceInstall
+AddService = autoxyq-drv,, AutoxyqDrv_ServiceInstall
+
+[autoxyq_install.NT.Wdf]
+UmdfService = autoxyq-drv, AutoxyqDrv_UmdfService
+UmdfServiceOrder = autoxyq-drv
+
+; ===== 文件拷贝 =====
+[CopyFunctionDriver]
+autoxyq-drv.dll
+
+[CopyCoInstaller]
+WdfCoInstaller01011.dll
+
+; ===== 服务配置 =====
+[WUDFRd_ServiceInstall]
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %12%\WUDFRd.sys
+
+[AutoxyqDrv_ServiceInstall]
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %12%\autoxyq-drv.dll
+
+[AutoxyqDrv_UmdfService]
+UmdfLibraryVersion   = 2.0
+ServiceLibrary       = autoxyq-drv.dll
+
+; ===== 字符串 =====
+[Strings]
+ManufacturerName = "autoxyq"
+DeviceName       = "autoxyq Virtual HID Device"
+DiskName         = "autoxyq Driver Installation Disk"
