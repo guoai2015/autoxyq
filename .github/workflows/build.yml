@@ -15,13 +15,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup WDK
-        uses: microsoft/setup-wdk@v1
-
-      - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: amd64
+      - name: Install WDK
+        shell: pwsh
+        run: |
+          Write-Host "Downloading Windows Driver Kit..."
+          # WDK for Windows 11 24H2
+          $wdkUrl = "https://go.microsoft.com/fwlink/?linkid=2272693"
+          $wdkInstaller = "$env:TEMP\wdksetup.exe"
+          Invoke-WebRequest -Uri $wdkUrl -OutFile $wdkInstaller -MaximumRetryCount 3
+          Write-Host "Installing WDK (silent)..."
+          Start-Process -FilePath $wdkInstaller -ArgumentList "/quiet", "/norestart" -Wait -NoNewWindow
+          Write-Host "WDK installation complete"
 
       - name: Configure CMake
         run: |
