@@ -23,7 +23,17 @@ list(GET WDK_KIT_DIR 0 WDK_INCLUDE_DIR)
 set(WDK_UM_INCLUDE  "${WDK_INCLUDE_DIR}/um")
 set(WDK_KM_INCLUDE  "${WDK_INCLUDE_DIR}/km")
 set(WDK_SHARED_INCLUDE "${WDK_INCLUDE_DIR}/shared")
-set(WDK_WDF_INCLUDE  "C:/Program Files (x86)/Windows Kits/10/Include/wdf/umdf/2.0")
+
+# WDF include 路径 (UMDF 2.0 或 2.x)
+file(GLOB WDK_WDF_INCLUDE_LIST "C:/Program Files (x86)/Windows Kits/10/Include/wdf/umdf/*")
+list(SORT WDK_WDF_INCLUDE_LIST)
+list(REVERSE WDK_WDF_INCLUDE_LIST)
+if(WDK_WDF_INCLUDE_LIST)
+    list(GET WDK_WDF_INCLUDE_LIST 0 WDK_WDF_INCLUDE)
+else()
+    set(WDK_WDF_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/wdf/umdf/2.0")
+    message(WARNING "WDF include 目录未找到, 使用默认路径 ${WDK_WDF_INCLUDE}")
+endif()
 
 # 查找 WDK 库路径
 file(GLOB WDK_LIB_DIR "C:/Program Files (x86)/Windows Kits/10/Lib/10.*")
@@ -31,6 +41,7 @@ list(SORT WDK_LIB_DIR)
 list(REVERSE WDK_LIB_DIR)
 list(GET WDK_LIB_DIR 0 WDK_LIB_BASE)
 set(WDK_UM_LIB "${WDK_LIB_BASE}/um/x64")
+set(WDK_WDF_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/umdf/x64")
 
 target_include_directories(autoxyq-drv PRIVATE
     ${WDK_UM_INCLUDE}
@@ -40,7 +51,10 @@ target_include_directories(autoxyq-drv PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_directories(autoxyq-drv PRIVATE ${WDK_UM_LIB})
+target_link_directories(autoxyq-drv PRIVATE
+    ${WDK_UM_LIB}
+    ${WDK_WDF_LIB}
+)
 
 target_link_libraries(autoxyq-drv
     WdfUmDriverStub.lib

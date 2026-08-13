@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 if(MSVC)
-    add_compile_options(/W4 /WX /wd4100 /wd4201 /wd4214)
+    add_compile_options(/W4 /WX /wd4100 /wd4201 /wd4214 /utf-8)
 endif()
 
 option(BUILD_DRIVER "Build UMDF driver (requires WDK)" OFF)
