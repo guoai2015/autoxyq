@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     const char* cmd = argv[1];
 
     if (strcmp(cmd, "key") == 0 && argc >= 3) {
-        int key = atoi(argv[2]);
+        int key = (int)strtol(argv[2], NULL, 0);
         int duration = (argc >= 4) ? atoi(argv[3]) : 0;
         if (duration > 0) {
             ret = autoxyq_key_press((uint8_t)key, (uint32_t)duration);
