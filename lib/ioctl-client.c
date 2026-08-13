@@ -284,7 +284,7 @@ int ioctl_send_mouse(HANDLE hDevice, const mouse_report_t* report) {
     for (int b = 0; b < 5; b++) {
         uint8_t mask = (uint8_t)(1u << b);
         if ((g_PrevMouseButtons ^ now) & mask) {
-            send_mouse_button(b, (now & mask) != 0);
+            send_mouse_button((uint8_t)b, (now & mask) != 0);
         }
     }
 
@@ -328,7 +328,7 @@ int ioctl_reset_devices(HANDLE hDevice) {
     }
     for (int b = 0; b < 5; b++) {
         if (g_PrevMouseButtons & (1u << b)) {
-            send_mouse_button(b, FALSE);
+            send_mouse_button((uint8_t)b, FALSE);
         }
     }
 
