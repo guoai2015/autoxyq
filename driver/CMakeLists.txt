@@ -43,8 +43,11 @@ list(GET WDK_LIB_DIR 0 WDK_LIB_BASE)
 set(WDK_UM_LIB "${WDK_LIB_BASE}/um/x64")
 
 # WDF 库路径 — 递归查找 WdfDriverStubUm.lib (UMDF 2.x) 所在目录
+# 与上面的 WDF include 目录保持一致: 按版本号排序后取最新, 避免头文件(2.35)与库(2.0)版本错配
 file(GLOB_RECURSE WDF_STUB_LIBS
     "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/umdf/x64/*/WdfDriverStubUm.lib")
+list(SORT WDF_STUB_LIBS)
+list(REVERSE WDF_STUB_LIBS)
 if(WDF_STUB_LIBS)
     list(GET WDF_STUB_LIBS 0 WDF_STUB_FIRST)
     get_filename_component(WDK_WDF_LIB "${WDF_STUB_FIRST}" DIRECTORY)
@@ -72,6 +75,7 @@ target_link_directories(autoxyq-drv PRIVATE
 target_link_libraries(autoxyq-drv
     WdfDriverStubUm.lib
     onecoreuap.lib
+    ntdll.lib
 )
 
 # 驱动专用编译定义
