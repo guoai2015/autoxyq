@@ -50,8 +50,9 @@ target_include_directories(autoxyq-drv PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# WDF 头文件内部有结构体对齐警告 (C4324), 属 WDK 自身问题, 抑制之
-target_compile_options(autoxyq-drv PRIVATE /wd4324)
+# WDF 头文件内部有结构体对齐警告 (C4324) 和宏重定义 (C4005),
+# 均属 WDK 自身问题 (winnt.h 与 ntstatus.h 定义相同的 STATUS 值), 抑制之
+target_compile_options(autoxyq-drv PRIVATE /wd4324 /wd4005)
 
 target_link_directories(autoxyq-drv PRIVATE
     ${WDK_UM_LIB}
@@ -67,7 +68,6 @@ target_link_libraries(autoxyq-drv
 target_compile_definitions(autoxyq-drv PRIVATE
     _UMDF_
     UMDF2_USE_VERSION=2
-    WIN32_NO_STATUS
     WINVER=0x0A00
     _WIN32_WINNT=0x0A00
 )
