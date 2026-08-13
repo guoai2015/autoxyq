@@ -41,9 +41,6 @@ NTSTATUS EvtDriverDeviceAdd(
 
     TRACE("EvtDriverDeviceAdd called");
 
-    // 配置设备为 UMDF 用户态驱动
-    WdfDeviceInitSetDeviceType(DeviceInit, FILE_DEVICE_UNKNOWN);
-
     // 设备上下文
     WDF_OBJECT_ATTRIBUTES deviceAttributes;
     WDF_OBJECT_ATTRIBUTES_INIT_CONTEXT_TYPE(&deviceAttributes, DEVICE_CONTEXT);
