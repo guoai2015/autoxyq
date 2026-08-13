@@ -20,9 +20,8 @@ list(SORT WDK_KIT_DIR)
 list(REVERSE WDK_KIT_DIR)
 list(GET WDK_KIT_DIR 0 WDK_INCLUDE_DIR)
 
+# UMDF 是用户态驱动, 只需要 um (用户态) 头文件, 不需要 km (内核态)
 set(WDK_UM_INCLUDE  "${WDK_INCLUDE_DIR}/um")
-set(WDK_KM_INCLUDE  "${WDK_INCLUDE_DIR}/km")
-set(WDK_SHARED_INCLUDE "${WDK_INCLUDE_DIR}/shared")
 
 # WDF include 路径 (UMDF 2.0 或 2.x)
 file(GLOB WDK_WDF_INCLUDE_LIST "C:/Program Files (x86)/Windows Kits/10/Include/wdf/umdf/*")
@@ -45,8 +44,6 @@ set(WDK_WDF_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/umdf/x64")
 
 target_include_directories(autoxyq-drv PRIVATE
     ${WDK_UM_INCLUDE}
-    ${WDK_KM_INCLUDE}
-    ${WDK_SHARED_INCLUDE}
     ${WDK_WDF_INCLUDE}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )

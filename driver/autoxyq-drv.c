@@ -7,21 +7,12 @@ extern VOID EvtIoDeviceControl(_In_ WDFQUEUE, _In_ WDFREQUEST, _In_ size_t, _In_
 extern void HidKeyboard_Init(void);
 extern void HidMouse_Init(void);
 
-// 全局驱动模块句柄
-static HMODULE g_DriverModuleHandle = NULL;
-
-HMODULE GetDriverModuleHandle(void) {
-    return g_DriverModuleHandle;
-}
-
 // 驱动入口点
 NTSTATUS DriverEntry(
     _In_ PDRIVER_OBJECT  DriverObject,
     _In_ PUNICODE_STRING RegistryPath)
 {
     (void)DriverObject;
-
-    g_DriverModuleHandle = (HMODULE)DriverObject->DriverSection;
 
     WDF_DRIVER_CONFIG config;
     WDF_DRIVER_CONFIG_INIT(&config, EvtDriverDeviceAdd);

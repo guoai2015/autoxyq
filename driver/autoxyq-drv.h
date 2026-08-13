@@ -13,9 +13,6 @@ typedef struct _DEVICE_CONTEXT {
 // 获取设备上下文宏
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DEVICE_CONTEXT, GetDeviceContext);
 
-// 获取此驱动模块句柄 (trace / 日志用)
-HMODULE GetDriverModuleHandle(void);
-
 // WDF 回调声明
 DRIVER_INITIALIZE DriverEntry;
 EVT_WDF_DRIVER_DEVICE_ADD EvtDriverDeviceAdd;
