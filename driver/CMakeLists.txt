@@ -42,15 +42,15 @@ list(REVERSE WDK_LIB_DIR)
 list(GET WDK_LIB_DIR 0 WDK_LIB_BASE)
 set(WDK_UM_LIB "${WDK_LIB_BASE}/um/x64")
 
-# WDF 库路径 — 递归查找 WdfUmDriverStub.lib 所在目录
+# WDF 库路径 — 递归查找 WdfDriverStubUm.lib (UMDF 2.x) 所在目录
 file(GLOB_RECURSE WDF_STUB_LIBS
-    "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/*/WdfUmDriverStub.lib")
+    "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/umdf/x64/*/WdfDriverStubUm.lib")
 if(WDF_STUB_LIBS)
     list(GET WDF_STUB_LIBS 0 WDF_STUB_FIRST)
     get_filename_component(WDK_WDF_LIB "${WDF_STUB_FIRST}" DIRECTORY)
 else()
-    set(WDK_WDF_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/umdf/x64")
-    message(WARNING "WdfUmDriverStub.lib 未找到, 使用默认路径 ${WDK_WDF_LIB}")
+    set(WDK_WDF_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/wdf/umdf/x64/2.35")
+    message(WARNING "WdfDriverStubUm.lib 未找到, 使用默认路径 ${WDK_WDF_LIB}")
 endif()
 
 target_include_directories(autoxyq-drv PRIVATE
@@ -70,7 +70,7 @@ target_link_directories(autoxyq-drv PRIVATE
 )
 
 target_link_libraries(autoxyq-drv
-    WdfUmDriverStub.lib
+    WdfDriverStubUm.lib
     onecoreuap.lib
 )
 
