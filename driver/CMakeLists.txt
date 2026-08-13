@@ -62,6 +62,7 @@ target_link_libraries(autoxyq-drv
 target_compile_definitions(autoxyq-drv PRIVATE
     _UMDF_
     UMDF2_USE_VERSION=2
+    WIN32_NO_STATUS
     WINVER=0x0A00
     _WIN32_WINNT=0x0A00
 )
