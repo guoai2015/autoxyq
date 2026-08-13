@@ -47,5 +47,4 @@ target_compile_definitions(test-queue PRIVATE
     WINVER=0x0A00
     _WIN32_WINNT=0x0A00
 )
-target_link_libraries(test-queue PRIVATE setupapi.lib)
 add_test(NAME test-queue COMMAND test-queue)

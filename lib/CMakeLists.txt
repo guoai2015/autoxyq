@@ -21,9 +21,7 @@ target_include_directories(autoxyq PUBLIC
     ${CMAKE_SOURCE_DIR}/driver
 )
 
-target_link_libraries(autoxyq
-    setupapi.lib
-)
+# SendInput 后端无需 setupapi (SendInput 在 user32.lib, MSVC 默认链接)
 
 # 同时生成静态库供 CLI 测试使用
 add_library(autoxyq-static STATIC ${LIB_SOURCES})
