@@ -169,10 +169,19 @@ int autoxyq_mouse_move_ex(int16_t dx, int16_t dy, uint32_t duration_ms,
     if (ret != AUTOXYQ_OK) return ret;
 
     // 逐帧发送
+    // path 是绝对坐标路径, 但 send_mouse_report 期望相对位移,
+    // 故发送相邻帧差值, 使累计位移恰好等于 (dx, dy)
+    int16_t prev_x = 0;
+    int16_t prev_y = 0;
     for (uint32_t i = 0; i < count; i++) {
         uint32_t before_ms = (uint32_t)(GetTickCount64() & 0xFFFFFFFF);
 
-        ret = send_mouse_report(path[i * 2], path[i * 2 + 1], 0);
+        int16_t step_x = (int16_t)(path[i * 2] - prev_x);
+        int16_t step_y = (int16_t)(path[i * 2 + 1] - prev_y);
+        prev_x = path[i * 2];
+        prev_y = path[i * 2 + 1];
+
+        ret = send_mouse_report(step_x, step_y, 0);
         if (ret != AUTOXYQ_OK) {
             free(path);
             return ret;
