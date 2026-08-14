@@ -49,8 +49,8 @@ int autoxyq_mouse_move_ex(int16_t dx, int16_t dy, uint32_t duration_ms,
 
 /**
  * 移动到屏幕绝对坐标。
- * 通过持续发送相对位移模拟，使用轨迹插值。
- * x, y: 目标屏幕坐标 (像素)
+ * 使用 MOUSEEVENTF_ABSOLUTE 绝对坐标 + 轨迹插值，落点不受鼠标加速影响。
+ * x, y: 目标屏幕绝对坐标 (物理像素, 虚拟屏幕坐标系)
  * duration_ms: 移动总时长 (毫秒)
  * type: 轨迹曲线类型
  */
