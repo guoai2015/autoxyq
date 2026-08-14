@@ -212,10 +212,10 @@ static void send_mouse_button(uint8_t button, BOOL down) {
 static int g_DummyDevice = 0;
 
 HANDLE ioctl_open_device(void) {
-    // 声明进程 DPI 感知: 使 GetSystemMetrics / GetCursorPos 与
+    // 声明 Per-Monitor V2 DPI 感知: 使 GetSystemMetrics / GetCursorPos 与
     // MOUSEEVENTF_ABSOLUTE 的归一化统一到物理像素域,
-    // 消除高 DPI 缩放下 moveto 绝对定位的偏移
-    SetProcessDPIAware();
+    // 消除高 DPI 及混合缩放多显示器下 moveto 绝对定位的偏移
+    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     return (HANDLE)&g_DummyDevice;
 }
 
