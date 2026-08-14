@@ -313,6 +313,28 @@ int ioctl_send_mouse(HANDLE hDevice, const mouse_report_t* report) {
     return AUTOXYQ_OK;
 }
 
+// 发送绝对坐标移动 (屏幕像素)
+// MOUSEEVENTF_ABSOLUTE 模式不受系统鼠标加速影响, 落点精确。
+int ioctl_send_mouse_absolute(HANDLE hDevice, int x, int y) {
+    (void)hDevice;
+
+    // 虚拟屏幕坐标 → 0..65535 归一化绝对坐标
+    int left   = GetSystemMetrics(SM_XVIRTUALSCREEN);
+    int top    = GetSystemMetrics(SM_YVIRTUALSCREEN);
+    int width  = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+    int height = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+    INPUT in;
+    memset(&in, 0, sizeof(in));
+    in.type = INPUT_MOUSE;
+    in.mi.dx = (LONG)((x - left) * 65536 / width);
+    in.mi.dy = (LONG)((y - top) * 65536 / height);
+    in.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK;
+    SendInput(1, &in, sizeof(INPUT));
+
+    return AUTOXYQ_OK;
+}
+
 // 重置所有设备 (抬起所有按下的键/按钮, 清空状态)
 int ioctl_reset_devices(HANDLE hDevice) {
     (void)hDevice;

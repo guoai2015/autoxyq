@@ -9,6 +9,7 @@ extern HANDLE ioctl_open_device(void);
 extern void ioctl_close_device(HANDLE hDevice);
 extern int ioctl_send_keyboard(HANDLE hDevice, const keyboard_report_t* report);
 extern int ioctl_send_mouse(HANDLE hDevice, const mouse_report_t* report);
+extern int ioctl_send_mouse_absolute(HANDLE hDevice, int x, int y);
 extern int ioctl_reset_devices(HANDLE hDevice);
 
 // 轨迹引擎声明 (Task 12 实现)
@@ -156,6 +157,43 @@ int autoxyq_mouse_move(int16_t dx, int16_t dy) {
     return send_mouse_report(dx, dy, 0);
 }
 
+// 沿轨迹逐帧移动
+// absolute: 0 = 相对位移 (发送相邻帧差值)
+//           1 = 绝对坐标 (ioctl_send_mouse_absolute, 不受鼠标加速影响)
+static int move_along_path(int16_t* path, uint32_t count, int absolute) {
+    int16_t prev_x = 0;
+    int16_t prev_y = 0;
+
+    for (uint32_t i = 0; i < count; i++) {
+        uint32_t before_ms = (uint32_t)(GetTickCount64() & 0xFFFFFFFF);
+
+        int ret;
+        if (absolute) {
+            ret = ioctl_send_mouse_absolute(g_DeviceHandle, path[i * 2], path[i * 2 + 1]);
+        } else {
+            // path 是绝对坐标路径, send_mouse_report 期望相对位移,
+            // 故发送相邻帧差值, 使累计位移恰好等于 (dx, dy)
+            int16_t step_x = (int16_t)(path[i * 2] - prev_x);
+            int16_t step_y = (int16_t)(path[i * 2 + 1] - prev_y);
+            prev_x = path[i * 2];
+            prev_y = path[i * 2 + 1];
+            ret = send_mouse_report(step_x, step_y, 0);
+        }
+        if (ret != AUTOXYQ_OK) {
+            return ret;
+        }
+
+        // 帧间延迟
+        uint32_t elapsed_ms = (uint32_t)(GetTickCount64() & 0xFFFFFFFF) - before_ms;
+        uint32_t frame_delay = delay_random_ms();
+        if (frame_delay > elapsed_ms) {
+            delay_sleep_us((uint64_t)(frame_delay - elapsed_ms) * 1000);
+        }
+    }
+
+    return AUTOXYQ_OK;
+}
+
 int autoxyq_mouse_move_ex(int16_t dx, int16_t dy, uint32_t duration_ms,
                            trajectory_type_t type) {
     if (duration_ms == 0) {
@@ -168,49 +206,37 @@ int autoxyq_mouse_move_ex(int16_t dx, int16_t dy, uint32_t duration_ms,
                                         &path, &count);
     if (ret != AUTOXYQ_OK) return ret;
 
-    // 逐帧发送
-    // path 是绝对坐标路径, 但 send_mouse_report 期望相对位移,
-    // 故发送相邻帧差值, 使累计位移恰好等于 (dx, dy)
-    int16_t prev_x = 0;
-    int16_t prev_y = 0;
-    for (uint32_t i = 0; i < count; i++) {
-        uint32_t before_ms = (uint32_t)(GetTickCount64() & 0xFFFFFFFF);
-
-        int16_t step_x = (int16_t)(path[i * 2] - prev_x);
-        int16_t step_y = (int16_t)(path[i * 2 + 1] - prev_y);
-        prev_x = path[i * 2];
-        prev_y = path[i * 2 + 1];
-
-        ret = send_mouse_report(step_x, step_y, 0);
-        if (ret != AUTOXYQ_OK) {
-            free(path);
-            return ret;
-        }
-
-        // 帧间延迟
-        uint32_t elapsed_ms = (uint32_t)(GetTickCount64() & 0xFFFFFFFF) - before_ms;
-        uint32_t frame_delay = delay_random_ms();
-        if (frame_delay > elapsed_ms) {
-            delay_sleep_us((uint64_t)(frame_delay - elapsed_ms) * 1000);
-        }
-    }
-
+    ret = move_along_path(path, count, 0); // 相对位移
     free(path);
-    return AUTOXYQ_OK;
+    return ret;
 }
 
 int autoxyq_mouse_move_to(int x, int y, uint32_t duration_ms,
                            trajectory_type_t type) {
+    if (g_DeviceHandle == INVALID_HANDLE_VALUE) {
+        return AUTOXYQ_ERR_DEVICE_NOT_READY;
+    }
+
+    if (duration_ms == 0) {
+        // 瞬时绝对定位
+        return ioctl_send_mouse_absolute(g_DeviceHandle, x, y);
+    }
+
     // 获取当前鼠标位置作为起点
     POINT currentPos;
     if (!GetCursorPos(&currentPos)) {
         return AUTOXYQ_ERR_IOCTL_FAILED;
     }
 
-    int16_t dx = (int16_t)(x - currentPos.x);
-    int16_t dy = (int16_t)(y - currentPos.y);
+    int16_t* path = NULL;
+    uint32_t count = 0;
+    int ret = trajectory_generate_path(currentPos.x, currentPos.y, x, y,
+                                        duration_ms, type, &path, &count);
+    if (ret != AUTOXYQ_OK) return ret;
 
-    return autoxyq_mouse_move_ex(dx, dy, duration_ms, type);
+    ret = move_along_path(path, count, 1); // 绝对坐标
+    free(path);
+    return ret;
 }
 
 int autoxyq_mouse_button_down(uint8_t button) {
