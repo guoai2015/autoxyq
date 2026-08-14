@@ -18,6 +18,8 @@
 `SendInput` 合成的输入带 `LLMHF_INJECTED` 标志，可被游戏反作弊识别。本项目仅用于学习与自动化测试；需要绕过反检测的场景请改用内核 VHF 驱动或硬件 HID 设备（见 `docs/approach-hardware-hid.md`）。
 
 > **鼠标加速**：`move`（相对位移）受系统「提高指针精确度」影响，移动越快实际位移越大；`moveto` 使用 `MOUSEEVENTF_ABSOLUTE` 绝对坐标，落点精确，不受加速影响。
+>
+> **高 DPI**：库初始化时会声明进程 DPI 感知，因此 `moveto` 的坐标为**物理像素**，不受系统缩放比例影响。
 
 ## 系统要求
 
