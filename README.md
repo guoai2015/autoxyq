@@ -68,9 +68,9 @@ ctest -C Release
 
 #### 通用约定
 
-- **数字解析**：除 `key` 的按键码外，所有数字参数按**十进制**解析。`key` 的按键码额外支持 `0x` 十六进制前缀（也支持 `0` 八进制前缀）。
+- **数字解析**：除 `key`/`hotkey` 的按键码外，所有数字参数按**十进制**解析。按键码额外支持 `0x` 十六进制前缀（也支持 `0` 八进制前缀）。
 - **坐标语义**：`move` 是相对位移，`moveto` 是绝对坐标（物理像素，见「坐标系统与 DPI」）。
-- **修饰键限制**：`key` 仅支持普通按键（HID Usage ID `0x04`–`0x65`），**不支持** Ctrl / Shift / Alt / Win 等修饰键 —— 它们属于 HID Usage ID `0xE0`–`0xE7`，超出范围会返回 `Invalid parameter`。
+- **组合键**：`hotkey` 指令支持 Ctrl / Shift / Alt / Win 等修饰键，修饰键可用友好名（如 `ctrl`、`lshift`）或十六进制（`0xE0`–`0xE7`）。
 
 #### 坐标系统与 DPI
 
@@ -115,6 +115,29 @@ autoxyq-cli key <usb_usage_id> [duration_ms]
 .\autoxyq-cli.exe key 0x04 500      # 按住 A 500ms 后弹起
 .\autoxyq-cli.exe key 0x28          # 瞬间点按 Enter
 ```
+
+##### hotkey — 组合键
+
+```
+autoxyq-cli hotkey <修饰键...> <主键> [按住时长_ms]
+```
+
+序列：按下所有修饰键 → 按下主键 →（可选按住时长）→ 弹起主键 → 逆序弹起修饰键。
+
+| 参数 | 必填 | 说明 |
+|---|---|---|
+| 修饰键 | 是 | 一个或多个修饰键。友好名（`ctrl`/`shift`/`alt`/`win`，支持 `l`/`r` 前缀如 `lctrl`/`rshift`，不区分大小写）或十六进制（`0xE0`–`0xE7`） |
+| 主键 | 是 | 组合键的目标按键，十六进制 Usage ID（推荐 `0x` 前缀，如 `0x06`=C） |
+| 按住时长_ms | 否 | 主键按住时长（毫秒），无前缀纯十进制数字。省略 = 点按 |
+
+```powershell
+.\autoxyq-cli.exe hotkey ctrl 0x06          # Ctrl+C
+.\autoxyq-cli.exe hotkey lctrl rshift 0x29  # Ctrl+Shift+Esc
+.\autoxyq-cli.exe hotkey win 0x15           # Win+R
+.\autoxyq-cli.exe hotkey ctrl 0x04 500      # 按住 Ctrl+A 500ms
+```
+
+> **解析规则**：最后一个参数若是纯十进制数字（如 `500`）视为按住时长，倒数第二个是主键；否则最后一个参数是主键。主键建议用 `0x` 前缀十六进制，避免与时长混淆。
 
 ##### move — 平滑相对移动
 
@@ -210,9 +233,13 @@ autoxyq-cli reset
 
 #### 键盘码表
 
-`key` 指令的 `usb_usage_id` 取值（USB HID Keyboard/Keypad page）：
+`key` / `hotkey` 指令的 `usb_usage_id` 取值（USB HID Keyboard/Keypad page）：
 
 ```text
+修饰键 (0xE0-0xE7, hotkey 中亦可用友好名):
+0xE0 左 Ctrl, 0xE1 左 Shift, 0xE2 左 Alt, 0xE3 左 Win,
+0xE4 右 Ctrl, 0xE5 右 Shift, 0xE6 右 Alt, 0xE7 右 Win
+
 字母键:
 0x04 A, 0x05 B, 0x06 C, 0x07 D, 0x08 E, 0x09 F,
 0x0A G, 0x0B H, 0x0C I, 0x0D J, 0x0E K, 0x0F L,

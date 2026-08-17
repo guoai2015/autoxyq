@@ -90,6 +90,17 @@ int autoxyq_key_down(uint8_t usb_usage_id) {
     if (g_DeviceHandle == INVALID_HANDLE_VALUE) {
         return AUTOXYQ_ERR_DEVICE_NOT_READY;
     }
+
+    // 修饰键 (0xE0-0xE7): 映射到 modifier_bitmap 的 bit (usage_id - 0xE0)
+    if (usb_usage_id >= 0xE0 && usb_usage_id <= 0xE7) {
+        uint8_t bit = (uint8_t)(1u << (usb_usage_id - 0xE0));
+        if (g_KeyboardState.modifier_bitmap & bit) {
+            return AUTOXYQ_OK; // 已按下，幂等
+        }
+        g_KeyboardState.modifier_bitmap |= bit;
+        return ioctl_send_keyboard(g_DeviceHandle, &g_KeyboardState);
+    }
+
     if (usb_usage_id == 0 || usb_usage_id > 0x65) {
         return AUTOXYQ_ERR_INVALID_PARAM;
     }
@@ -113,6 +124,17 @@ int autoxyq_key_up(uint8_t usb_usage_id) {
     if (g_DeviceHandle == INVALID_HANDLE_VALUE) {
         return AUTOXYQ_ERR_DEVICE_NOT_READY;
     }
+
+    // 修饰键 (0xE0-0xE7): 映射到 modifier_bitmap 的 bit (usage_id - 0xE0)
+    if (usb_usage_id >= 0xE0 && usb_usage_id <= 0xE7) {
+        uint8_t bit = (uint8_t)(1u << (usb_usage_id - 0xE0));
+        if (!(g_KeyboardState.modifier_bitmap & bit)) {
+            return AUTOXYQ_OK; // 未按下，幂等
+        }
+        g_KeyboardState.modifier_bitmap &= (uint8_t)~bit;
+        return ioctl_send_keyboard(g_DeviceHandle, &g_KeyboardState);
+    }
+
     if (usb_usage_id == 0 || usb_usage_id > 0x65) {
         return AUTOXYQ_ERR_INVALID_PARAM;
     }
